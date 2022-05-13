@@ -11,6 +11,7 @@ NOTES:
 import re
 import random
 import time
+from bisect import insort
 
 # Setting our global variables
 global total_points
@@ -31,6 +32,7 @@ class Account:
         self.allAccounts[username] = self
         self.password = password
 
+
 # Creates an instance of a song
 class Song:
     # Holds all the songs within a class dictionary
@@ -45,31 +47,39 @@ class Song:
     # Formats the song details into a specific order
     def print_details(self):
         x1 = ""
-        for x in range (0,len(self.song_name)):
+        for x in range(0, len(self.song_name)):
             # If a space is found then print the character right after it
             if self.song_name[x] == ' ':
-                letter = self.song_name[x+1]
+                letter = self.song_name[x + 1]
                 # Prints each first letter per word in a song separately from each song with one word in it
                 x1 = x1 + ' ' + letter
         # Separates the first letter in each word of the song to make it readable      
         print('The first letter(s) of the song are: ', self.song_name[0], x1, sep='')
         print('The artist of the song is:', self.artist), time.sleep(0)
         print("The song's creation date is:", self.creation_date)
-         
+
+
 class Scores:
-    # Holds all the scores within a class dictionary
-    allScores = {}
+    # Holds all the scores within a class list
+    allScores = []
 
     def __init__(self, name, points, lives):
-        self.allScores[name] = self      
         self.name = name
         self.points = points
         self.lives = lives
-    
+        insort(self.allScores, self)
+
+    def __gt__(self, other):
+        if self.points == other.points:
+            return self.lives < other.lives
+        else:
+            return self.points < other.points
+
 
 # Randomises the songs when printed
 def get_random_song():
     return random.choice(list(Song.allSongs))
+
 
 def load_accounts_and_songs_and_scores():
     # Loading all accounts in
@@ -81,7 +91,7 @@ def load_accounts_and_songs_and_scores():
             username, password = re.split('[:]', line)
             # Initialising the Account object
             Account(username, password)
-    
+
     # Loading all songs in
     with open('songs.txt') as songs:
         for song_line in songs:
@@ -91,7 +101,7 @@ def load_accounts_and_songs_and_scores():
             song_name, artist, creation_date = re.split('[:]', song_line)
             # Initialising the Song object
             Song(song_name, artist, creation_date)
-    
+
     # Loading all the scores in
     with open('leaderboards.txt') as scores:
         for score_line in scores:
@@ -101,16 +111,16 @@ def load_accounts_and_songs_and_scores():
             name, lives, points = re.split('[:]', score_line)
             # Initialising the Scores object
             Scores(name, lives, points)
-            
+
 
 def display_start_menu():
-    
     print('Welcome to the Music Quiz Menu!')
     print('Please choose from one of the options available (1/2/3):'
           '\n'
           '\n1. Register'
           '\n2. Login'
-          '\n3. Quit')
+          '\n3. Leaderboards'
+          '\n4. Quit')
 
     # Loops the start menu until the user has correctly picked an option
     while True:
@@ -127,6 +137,9 @@ def display_start_menu():
                 login()
                 break
             elif menu_choice == 3:
+                leaderboards()
+                break
+            elif menu_choice == 4:
                 print('The program will now close!'), time.sleep(1)
                 quit()
             else:
@@ -135,7 +148,7 @@ def display_start_menu():
 
 def register():
     print('\nWelcome to the registration page.')
-    
+
     # Setting the user's new account with their sign in credentials
     while True:
         username = input('Please create a username: ')
@@ -162,39 +175,38 @@ def quiz_loss():
     global total_lives
     global total_points
     global counter
-    
+
     print("\nYou've lost the quiz!")
-    
+
     while True:
         try:
             quizlost = int(input(
-              '\n1) Main menu'
-              '\n2) Quit'
-              '\n\nPick an option: ')) 
-        
-        # Returns back to the options if an invalid integer or option is entered
+                '\n1) Main menu'
+                '\n2) Quit'
+                '\n\nPick an option: '))
+
+            # Returns back to the options if an invalid integer or option is entered
         except ValueError:
             print('\nPlease enter an integer.')
             continue
-        
+
         else:
             if quizlost == 1:
-                print('Redirecting to the main menu.',end=''), time.sleep(0.5)
-                print('.',end=''), time.sleep(0.5)
+                print('Redirecting to the main menu.', end=''), time.sleep(0.5)
+                print('.', end=''), time.sleep(0.5)
                 print('.\n'), time.sleep(0.5)
-                
+
                 # Resets the lives, points and counter variables back to the default values
                 while total_lives < 2:
                     total_lives += 1
                 if total_lives == 2:
                     pass
-                
 
                 while total_points > 0:
                     total_points -= 1
                 if total_points == 0:
                     pass
-                
+
                 while counter != 1:
                     counter += 1
                     if counter == 1:
@@ -207,39 +219,39 @@ def quiz_loss():
 
             # Quits the program
             elif quizlost == 2:
-                print('Quitting.',end=''), time.sleep(0.5)
-                print('.',end=''), time.sleep(0.5)
+                print('Quitting.', end=''), time.sleep(0.5)
+                print('.', end=''), time.sleep(0.5)
                 print('.'), time.sleep(0.5)
                 quit()
-            
+
             else:
                 print('Please enter one of the 2 options.')
-                
-        
+
+
 def extralife():
     global total_lives
-    global total_points  
-    
+    global total_points
+
     print('\nHave you lost a life?')
-    
+
     while True:
         try:
             # Asks the user if they lost a life or not
             life_given = int(input("If so, please say '1' to obtain a life. Otherwise, say '2' to move on: "))
-    
+
         except ValueError:
             # Returns back to the question if the user typed in an incorrect option
             print('\nPlease enter a correct option.')
             continue
-    
+
         else:
             if life_given == 1:
-            # If the user already has maximum lives and they try to cheat, the program quits itself
+                # If the user already has maximum lives and they try to cheat, the program quits itself
                 if total_lives >= 2:
                     print('\nStop trying to cheat!')
                     print('The game will not save your progress.')
-                    print('\nQuitting.',end=''), time.sleep(1)
-                    print('.',end=''), time.sleep(1)
+                    print('\nQuitting.', end=''), time.sleep(1)
+                    print('.', end=''), time.sleep(1)
                     print('.'), time.sleep(1)
                     quit()
                 else:
@@ -248,67 +260,79 @@ def extralife():
                     if total_lives == 2:
                         print('\nYour life has been given!\n'), time.sleep(1)
                         break
-      
+
             # Skips the whole process and just moves on if the user declined the offer  
             elif life_given == 2:
                 print('No lives given. Moving on to the next question...\n\n')
                 break
 
+
 def leaderboards():
+
+    if len(Scores.allScores) > 4:
+        leaderboard_size = 5
+    else:
+        leaderboard_size = len(Scores.allScores)
+
+    for n in range(0, leaderboard_size):
+        currentScore = Scores.allScores[n]
+        print("\n", n+1, ")", currentScore.name + " :", currentScore.points, "points :", currentScore.lives, "lives")
+
+def leaderboards1():
     global total_lives
     global total_points
     global counter
-    
+
     print('\nPick an option:')
-    
+
     while True:
         try:
             lbs = int(input(
-              '1) Top 5 scores'
-              '\n2) All scores'
-              '\n3) Main menu'
-              '\n4) Quit'
-              '\n\nEnter here: '))
+                '1) Top 5 scores'
+                '\n2) All scores'
+                '\n3) Main menu'
+                '\n4) Quit'
+                '\n\nEnter here: '))
 
         except ValueError:
             print('\nPlease enter an integer.')
             continue
-        
+
         else:
             if lbs == 1:
                 with open('leaderboards.txt') as f:
                     print("test")
-                
+
             elif lbs == 2:
                 with open('leaderboards.txt') as f:
                     print("test")
-                
-            
+
+
             elif lbs == 3:
                 print('\nRedirecting to the main menu.', end=''), time.sleep(0.5)
                 print('.', end=''), time.sleep(0.5)
                 print('.')
-                
+
                 # Resets the lives, points and counter variables back to the default values
                 while total_lives != 2:
                     total_lives += 1
                 if total_lives == 2:
                     pass
-                
+
                 while total_points > 0:
                     total_points -= 1
                 if total_points == 0:
                     pass
-                
+
                 while counter < 1:
                     counter += 1
                 if counter == 1:
                     pass
-                
+
                 # Return back to the main menu
-                display_start_menu() 
+                display_start_menu()
                 break
-            
+
             elif lbs == 4:
                 print('\nQuitting.', end=''), time.sleep(1)
                 print('.', end=''), time.sleep(1)
@@ -318,13 +342,14 @@ def leaderboards():
             else:
                 print('Please enter one of the 4 options available.'), time.sleep(0.75)
 
+
 def quiz_win():
     global total_lives
     global total_points
     global counter
-    
+
     print('\nYou won the quiz!\n')
-    
+
     def lbs2():
         username = input('Please enter your username: ')
         points = str(total_points)
@@ -335,37 +360,37 @@ def quiz_win():
                 f.write(username + ':' + points + ':' + lives + '\n')
                 print('\nYour score has been saved!')
                 pass
-        
+
         else:
             print('\nPlease re-enter your username.\n'), time.sleep(0.75)
             lbs2()
-    
-    lbs2()  
-    
+
+    lbs2()
+
     while True:
         try:
             # Asks the user to pick an option
             win = int(input(
-                        '\n'
-                        '1) Main menu\n'
-                        '2) Quit\n'
-                        '3) Leaderboards\n'
-                        '\nPlease pick an option: '))
-        
+                '\n'
+                '1) Main menu\n'
+                '2) Quit\n'
+                '3) Leaderboards\n'
+                '\nPlease pick an option: '))
+
         except ValueError:
             print('Please enter an integer.')
             continue
-        
+
         else:
             if win == 2:
-                print('Quitting.',end=''),time.sleep(0.5)
-                print('.',end=''),time.sleep(0.5)
-                print('.',end=''),time.sleep(0.5)
+                print('Quitting.', end=''), time.sleep(0.5)
+                print('.', end=''), time.sleep(0.5)
+                print('.', end=''), time.sleep(0.5)
                 quit()
 
             elif win == 1:
-                print('Redirecting to the main menu.',end=''), time.sleep(0.5)
-                print(' .',end=''), time.sleep(0.5)
+                print('Redirecting to the main menu.', end=''), time.sleep(0.5)
+                print(' .', end=''), time.sleep(0.5)
                 print(' .\n'), time.sleep(0.5)
 
                 # Resets the lives, points and counter variables back to the default values
@@ -373,12 +398,12 @@ def quiz_win():
                     total_lives += 1
                 if total_lives == 2:
                     pass
-                
+
                 while total_points > 0:
                     total_points -= 1
                 if total_points == 0:
                     pass
-                
+
                 while counter != 1:
                     counter += 1
                 if counter == 1:
@@ -393,93 +418,89 @@ def quiz_win():
                 break
 
             else:
-                print('Please enter one of 3 options.'),time.sleep(0.75)
-        
-        
+                print('Please enter one of 3 options.'), time.sleep(0.75)
+
+
 def question5():
-    
-  global total_lives
-  global total_points  
-  global counter
+    global total_lives
+    global total_points
+    global counter
 
-  # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
-  if total_lives < 1:
-      quiz_loss()
+    # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
+    if total_lives < 1:
+        quiz_loss()
 
-  # Uses the counter variable to make sure the extralife() will not run more than once per question
-  if counter != 1:
-      pass
-  else:
-      extralife()
-  
-  # Prints the random song details
-  random_song = get_random_song()
-  Song.allSongs[random_song].print_details()
-  
-  question_5 = input('\nWhat is the name of the song?: ').casefold()
+    # Uses the counter variable to make sure the extralife() will not run more than once per question
+    if counter != 1:
+        pass
+    else:
+        extralife()
 
-  if total_lives == 1 and question_5 == random_song.casefold():
-      # Gives the player 1 point for scoring the song correctly the second time
-          print('\nCorrect! ')
-          total_points += 1
-          print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
-          quiz_win()
-  
-  elif total_lives == 2 and question_5 == random_song.casefold():
-      # Gives the player 3 points for scoring the song correctly first time
+    # Prints the random song details
+    random_song = get_random_song()
+    Song.allSongs[random_song].print_details()
+
+    question_5 = input('\nWhat is the name of the song?: ').casefold()
+
+    if total_lives == 1 and question_5 == random_song.casefold():
+        # Gives the player 1 point for scoring the song correctly the second time
+        print('\nCorrect! ')
+        total_points += 1
+        print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
+        quiz_win()
+
+    elif total_lives == 2 and question_5 == random_song.casefold():
+        # Gives the player 3 points for scoring the song correctly first time
         print('\nCorrect! ')
         total_points += 3
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         quiz_win()
-  
-  elif question_5 != random_song.casefold():
-     
-    # Removes a life if the player got a question wrong the first time
-      counter -= 2
-      total_lives -= 1
-      print('\nIncorrect answer.\n')
-      question5()
+
+    elif question_5 != random_song.casefold():
+
+        # Removes a life if the player got a question wrong the first time
+        counter -= 2
+        total_lives -= 1
+        print('\nIncorrect answer.\n')
+        question5()
 
 
 def question4():
-    
-  global total_lives
-  global total_points  
-  global counter
+    global total_lives
+    global total_points
+    global counter
 
-  # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
-  if total_lives < 1:
-      quiz_loss()
-  
-  # Uses the counter variable to make sure the extralife() will not run more than once per question
-  if counter != 1:
-      pass
-  else:
-      extralife()
-  
-  # Prints the random song details
-  random_song = get_random_song()
-  Song.allSongs[random_song].print_details()
-    
-  
-  question_4 = input('\nWhat is the name of the song?: ').casefold()
+    # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
+    if total_lives < 1:
+        quiz_loss()
 
+    # Uses the counter variable to make sure the extralife() will not run more than once per question
+    if counter != 1:
+        pass
+    else:
+        extralife()
 
-  if total_lives == 1 and question_4 == random_song.casefold():
-      # Gives the player 1 point for scoring the song correctly the second time
-          print('\nCorrect! ')
-          while counter != 1:
+    # Prints the random song details
+    random_song = get_random_song()
+    Song.allSongs[random_song].print_details()
+
+    question_4 = input('\nWhat is the name of the song?: ').casefold()
+
+    if total_lives == 1 and question_4 == random_song.casefold():
+        # Gives the player 1 point for scoring the song correctly the second time
+        print('\nCorrect! ')
+        while counter != 1:
             counter += 1
             if counter == 1:
                 break
-          
-          total_points += 1
 
-          print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
-          question5()
-  
-  elif total_lives == 2 and question_4 == random_song.casefold():
-      # Gives the player 3 points for scoring the song correctly first time
+        total_points += 1
+
+        print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
+        question5()
+
+    elif total_lives == 2 and question_4 == random_song.casefold():
+        # Gives the player 3 points for scoring the song correctly first time
         print('\nCorrect! ')
         while counter != 1:
             counter += 1
@@ -488,172 +509,168 @@ def question4():
         total_points += 3
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question5()
-  
-  elif question_4 != random_song.casefold():
-    # Removes a life if the player got a question wrong the first time
-      counter -= 2
-      total_lives -= 1
-      print('\nIncorrect answer.\n')
-      question4()
+
+    elif question_4 != random_song.casefold():
+        # Removes a life if the player got a question wrong the first time
+        counter -= 2
+        total_lives -= 1
+        print('\nIncorrect answer.\n')
+        question4()
 
 
 def question3():
+    global total_lives
+    global total_points
+    global counter
 
-  global total_lives
-  global total_points  
-  global counter
+    # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
+    if total_lives < 1:
+        quiz_loss()
 
-  
-  # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
-  if total_lives < 1:
-      quiz_loss()
-  
-  # Uses the counter variable to make sure the extralife() will not run more than once per question
-  if counter != 1:
-      pass
-  else:
-      extralife()
-  
-  # Prints the random song details
-  random_song = get_random_song()
-  Song.allSongs[random_song].print_details()
-    
-  
-  question_3 = input('\nWhat is the name of the song?: ').casefold()
+    # Uses the counter variable to make sure the extralife() will not run more than once per question
+    if counter != 1:
+        pass
+    else:
+        extralife()
 
+    # Prints the random song details
+    random_song = get_random_song()
+    Song.allSongs[random_song].print_details()
 
-  if total_lives == 1 and question_3 == random_song.casefold():
-      # Gives the player 1 point for scoring the song correctly the second time
-          print('\nCorrect! ')
-          while counter != 1:
-            counter += 1
-            if counter == 1:
-                break
-          
-          total_points += 1
-          print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
-          question4()
-  
-  elif total_lives == 2 and question_3 == random_song.casefold():
-      # Gives the player 3 points for scoring the song correctly first time
+    question_3 = input('\nWhat is the name of the song?: ').casefold()
+
+    if total_lives == 1 and question_3 == random_song.casefold():
+        # Gives the player 1 point for scoring the song correctly the second time
         print('\nCorrect! ')
         while counter != 1:
             counter += 1
             if counter == 1:
                 break
-        
+
+        total_points += 1
+        print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
+        question4()
+
+    elif total_lives == 2 and question_3 == random_song.casefold():
+        # Gives the player 3 points for scoring the song correctly first time
+        print('\nCorrect! ')
+        while counter != 1:
+            counter += 1
+            if counter == 1:
+                break
+
         total_points += 3
 
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question4()
-  
-  elif question_3 != random_song.casefold():
-      counter -= 2
-      total_lives -= 1
-      # Removes a life if the player got a question wrong the first time
-      print('\nIncorrect answer.\n')
-      question3()
+
+    elif question_3 != random_song.casefold():
+        counter -= 2
+        total_lives -= 1
+        # Removes a life if the player got a question wrong the first time
+        print('\nIncorrect answer.\n')
+        question3()
+
 
 def question2():
-  global total_lives
-  global total_points  
-  global counter
+    global total_lives
+    global total_points
+    global counter
 
-  # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
-  if total_lives < 1:
-      quiz_loss()
+    # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
+    if total_lives < 1:
+        quiz_loss()
 
-  # Uses the counter variable to make sure the extralife() will not run more than once per question
-  if counter != 1:
-      pass
-  else:
-      extralife()
-  
-  # Prints the random song details
-  random_song = get_random_song()
-  Song.allSongs[random_song].print_details()
+    # Uses the counter variable to make sure the extralife() will not run more than once per question
+    if counter != 1:
+        pass
+    else:
+        extralife()
 
+    # Prints the random song details
+    random_song = get_random_song()
+    Song.allSongs[random_song].print_details()
 
-  question_2 = input('\nWhat is the name of the song?: ').casefold()
+    question_2 = input('\nWhat is the name of the song?: ').casefold()
 
-
-  if total_lives == 1 and question_2 == random_song.casefold():
-      # Gives the player 1 point for scoring the song correctly the second time
-          print('\nCorrect! ')
-          while counter != 1:
+    if total_lives == 1 and question_2 == random_song.casefold():
+        # Gives the player 1 point for scoring the song correctly the second time
+        print('\nCorrect! ')
+        while counter != 1:
             counter += 1
             if counter == 1:
                 break
-          
-          total_points += 1
-          print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
-          question3()
-  
-  elif total_lives == 2 and question_2 == random_song.casefold():
-      # Gives the player 3 points for scoring the song correctly first time
+
+        total_points += 1
+        print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
+        question3()
+
+    elif total_lives == 2 and question_2 == random_song.casefold():
+        # Gives the player 3 points for scoring the song correctly first time
         print('Correct! ')
         while counter != 1:
             counter += 1
             if counter == 1:
                 break
-            
+
         total_points += 3
-        
+
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question3()
-  
-  elif question_2 != random_song.casefold():
-      counter -= 2
-      # Removes a life if the player got a question wrong the first time
-      total_lives -= 1
-      print('\nIncorrect answer.\n')
-      question2()
+
+    elif question_2 != random_song.casefold():
+        counter -= 2
+        # Removes a life if the player got a question wrong the first time
+        total_lives -= 1
+        print('\nIncorrect answer.\n')
+        question2()
 
 
 def question1():
+    global total_lives
+    global total_points
 
-  global total_lives
-  global total_points 
-  
-  # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
-  if total_lives < 1:
-      quiz_loss()
-  
-  # Prints the random song details
-  random_song = get_random_song()
-  Song.allSongs[random_song].print_details()
- 
+    # Runs the quiz_loss() subroutine if you fail to answer the question twice (losing the game)
+    if total_lives < 1:
+        quiz_loss()
 
-  question_1 = input('\nWhat is the name of the song?: ').casefold()
+    # Prints the random song details
+    random_song = get_random_song()
+    Song.allSongs[random_song].print_details()
 
-  if total_lives == 1 and question_1 == random_song.casefold():
-      # Gives the player 1 point for scoring the song correctly the second time
-          print('\nCorrect! ')
-          total_points += 1
-          print('You have 1 life(s) and', total_points, 'point(s).')
-          question2()
-  
-  elif total_lives == 2 and question_1 == random_song.casefold():
-      # Gives the player 3 points for scoring the song correctly first time
+    question_1 = input('\nWhat is the name of the song?: ').casefold()
+
+    if total_lives == 1 and question_1 == random_song.casefold():
+        # Gives the player 1 point for scoring the song correctly the second time
+        print('\nCorrect! ')
+        total_points += 1
+        print('You have 1 life(s) and', total_points, 'point(s).')
+        question2()
+
+    elif total_lives == 2 and question_1 == random_song.casefold():
+        # Gives the player 3 points for scoring the song correctly first time
         print('Correct! ')
         total_points += 3
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question2()
-  
-  elif question_1 != random_song.casefold():
-      # Removes a life if the player got a question wrong the first time
-      print('\nIncorrect answer.\n')
-      total_lives -= 1
-      question1()
+
+    elif question_1 != random_song.casefold():
+        # Removes a life if the player got a question wrong the first time
+        print('\nIncorrect answer.\n')
+        total_lives -= 1
+        question1()
 
 
 def quiz():
     # Prints the rules
     print("\n\nWelcome to the music quiz! Let's get some rules down.\n")
     print('The quiz will consist of a list of songs, artist and release date of the song.'
-           '\nYou will get 3 points for getting the song right the first time and then 1 point if you get it wrong once, then correct.')
-    print('However, only the first letter of each word within the song will be given to you.\n\nGood luck!\n'), time.sleep(3)
+          '\nYou will get 3 points for getting the song right the first time and then 1 point if you get it wrong once, then correct.')
+    print(
+        'However, only the first letter of each word within the song will be given to you.\n\nGood luck!\n'), time.sleep(
+        3)
     question1()
+
 
 def login():
     print('\nWelcome to the login page.')
@@ -670,11 +687,10 @@ def login():
         if authenticatedUser:
             print('\nWelcome ', username, '!')
             quiz()
-            
+
         else:
             print('The account credentials are incorrect. You will be returned to the menu.\n')
             display_start_menu()
-
 
 
 load_accounts_and_songs_and_scores()
