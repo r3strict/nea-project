@@ -669,7 +669,5 @@ Documenting this as I want to note this for future reference and show developmen
            of words without restriction. (Andy)
            
 next/date/here - (documentation)
-           
-13/05/2022 - Ryan edited this
 
 """
