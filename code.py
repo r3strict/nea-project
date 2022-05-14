@@ -67,12 +67,16 @@ class Scores:
         self.name = name
         self.points = points
         self.lives = lives
+        # Python Library to automatically insert an object into a list whilst ensuring order
         insort(self.allScores, self)
 
+    # Defines a 'greater than' subroutine
     def __gt__(self, other):
         if self.points == other.points:
+            # If the current user's points are same as the others', then compare lives to sort
             return self.lives < other.lives
         else:
+            # Sorts the current user's points above the others if it's higher than the others
             return self.points < other.points
 
 
@@ -185,7 +189,7 @@ def quiz_loss():
                 '\n2) Quit'
                 '\n\nPick an option: '))
 
-            # Returns back to the options if an invalid integer or option is entered
+        # Returns back to the options if an invalid integer or option is entered
         except ValueError:
             print('\nPlease enter an integer.')
             continue
@@ -268,12 +272,13 @@ def extralife():
 
 
 def leaderboards():
-
+    # If there are more than 5 scores, then only print the top 5
     if len(Scores.allScores) > 4:
         leaderboard_size = 5
+    # Prints all the scores
     else:
         leaderboard_size = len(Scores.allScores)
-
+    # Prints all the scores in a specific format
     for n in range(0, leaderboard_size):
         currentScore = Scores.allScores[n]
         print("\n", n+1, ")", currentScore.name + " :", currentScore.points, "points :", currentScore.lives, "lives")
@@ -288,10 +293,12 @@ def quiz_win():
 
     def lbs2():
         username = input('Please enter your username: ')
+        # Converts the points and lives to string so it can be stored in the file
         points = str(total_points)
         lives = str(total_lives)
 
         if username in Account.allAccounts.keys():
+            # Stores the lives and points of the user to the leaderboard
             with open('leaderboards.txt', 'a') as f:
                 f.write(username + ':' + points + ':' + lives + '\n')
                 print('\nYour score has been saved!')
@@ -425,23 +432,25 @@ def question4():
     if total_lives == 1 and question_4 == random_song.casefold():
         # Gives the player 1 point for scoring the song correctly the second time
         print('\nCorrect! ')
+        
         while counter != 1:
             counter += 1
             if counter == 1:
                 break
 
         total_points += 1
-
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question5()
 
     elif total_lives == 2 and question_4 == random_song.casefold():
         # Gives the player 3 points for scoring the song correctly first time
         print('\nCorrect! ')
+        
         while counter != 1:
             counter += 1
             if counter == 1:
                 break
+       
         total_points += 3
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question5()
@@ -478,6 +487,7 @@ def question3():
     if total_lives == 1 and question_3 == random_song.casefold():
         # Gives the player 1 point for scoring the song correctly the second time
         print('\nCorrect! ')
+        
         while counter != 1:
             counter += 1
             if counter == 1:
@@ -490,13 +500,13 @@ def question3():
     elif total_lives == 2 and question_3 == random_song.casefold():
         # Gives the player 3 points for scoring the song correctly first time
         print('\nCorrect! ')
+        
         while counter != 1:
             counter += 1
             if counter == 1:
                 break
 
         total_points += 3
-
         print('You have', total_lives, 'life(s) and', total_points, 'point(s).')
         question4()
 
@@ -532,6 +542,7 @@ def question2():
     if total_lives == 1 and question_2 == random_song.casefold():
         # Gives the player 1 point for scoring the song correctly the second time
         print('\nCorrect! ')
+        
         while counter != 1:
             counter += 1
             if counter == 1:
@@ -544,6 +555,7 @@ def question2():
     elif total_lives == 2 and question_2 == random_song.casefold():
         # Gives the player 3 points for scoring the song correctly first time
         print('Correct! ')
+        
         while counter != 1:
             counter += 1
             if counter == 1:
@@ -603,8 +615,7 @@ def quiz():
     print('The quiz will consist of a list of songs, artist and release date of the song.'
           '\nYou will get 3 points for getting the song right the first time and then 1 point if you get it wrong once, then correct.')
     print(
-        'However, only the first letter of each word within the song will be given to you.\n\nGood luck!\n'), time.sleep(
-        3)
+        'However, only the first letter of each word within the song will be given to you.\n\nGood luck!\n'), time.sleep(3)
     question1()
 
 
@@ -616,8 +627,10 @@ def login():
     password = input('Please enter your password: ')
 
     try:
+        # Checks the value (password) to see if it would match the key (username), and if so then it grants access
         authenticatedUser = (Account.allAccounts[username].password == password)
     except KeyError:
+        # In the case the username doesn't exist, then deny access
         authenticatedUser = False
     finally:
         if authenticatedUser:
