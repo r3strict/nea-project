@@ -119,7 +119,7 @@ def load_accounts_and_songs_and_scores():
 
 def display_start_menu():
     print('Welcome to the Music Quiz Menu!')
-    print('Please choose from one of the options available (1/2/3):'
+    print('Please choose from one of the options available (1/2/3/4):'
           '\n'
           '\n1. Register'
           '\n2. Login'
