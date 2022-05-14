@@ -281,9 +281,14 @@ def leaderboards():
     # Prints all the scores in a specific format
     for n in range(0, leaderboard_size):
         currentScore = Scores.allScores[n]
-        print("\n", n+1, ")", currentScore.name + " :", currentScore.points, "points :", currentScore.lives, "lives")
-
-
+        print("\n", n+1, ")", currentScore.name + " :", currentScore.points, "points :", currentScore.lives, "lives"), time.sleep(5)
+    
+    print('Returning back to the main menu.', end=''), time.sleep(0.5)
+    print('.', end=''), time.sleep(0.5)
+    print('.', end=''), time.sleep(0.5)
+    display_start_menu()
+    
+    
 def quiz_win():
     global total_lives
     global total_points
