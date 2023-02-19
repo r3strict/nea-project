@@ -84,7 +84,6 @@ class Scores:
 def get_random_song():
     return random.choice(list(Song.allSongs))
 
-
 def load_accounts_and_songs_and_scores():
     # Loading all accounts in
     with open('accounts.txt') as file:
@@ -216,7 +215,7 @@ def quiz_loss():
                     if counter == 1:
                         pass
 
-                # Returns back to the main menu
+                # Returns to the main menu
                 display_start_menu()
                 break
 
@@ -359,12 +358,28 @@ def quiz_win():
                 if counter == 1:
                     pass
 
-                # Returns back to the main menu
+                # Returns to the main menu
                 display_start_menu()
                 break
 
             elif win == 3:
                 leaderboards()
+                # Resets the lives, points and counter variables back to the default values
+                while total_lives != 2:
+                    total_lives += 1
+                if total_lives == 2:
+                    pass
+
+                while total_points > 0:
+                    total_points -= 1
+                if total_points == 0:
+                    pass
+
+                while counter != 1:
+                    counter += 1
+                if counter == 1:
+                    pass
+
                 break
 
             else:
