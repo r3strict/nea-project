@@ -668,21 +668,3 @@ load_accounts_and_songs_and_scores()
 display_start_menu()
 
 # big thanks to roman for helping me with the code at home :)
-
-
-"""
-Documenting this as I want to note this for future reference and show development
-
-11/05/22 - I got the case sensitive-ness to disappear; I used '.casefold()' to allow any sort of capitalisation on the input of songs, regardless whether it is all capitals, etc.
-           My next plan is to then get the leaderboard working; I need to make it so that it prints the top 5 scores from top to bottom, then print the current user's score separately from that too.
-           I currently still do not know how to use classes fluently or even know how they fully work yet but I will soon. (Andy)
-
-12/05/22 - I finally got the 'def print_details(self)' to finally work!! I had to find some for loop online that prints the first letter of every word in a song. I had to mess around and add a '' variable
-           because for some reason if I did just 'pass' in the elif statement (refer back to the class Song to understand all this) then it would mess up and not print properly in my case. (Andy)
-           
-13/05/22 - Turns out the documentation above was false for songs with 2 or more words. So I asked the Python Discord server and someone told me to use " sep='' ". It worked in the end, and now can print any amount
-           of words without restriction. (Andy)
-           
-next/date/here - (documentation)
-
-"""
